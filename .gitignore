@@ -217,4 +217,7 @@ dbt_internal_packages/
 package-lock.yml
 logs/
 
-/airstats
+# Local dbt configuration / user-specific files
+/airstats/profiles.yml
+/airstats/.user.yml
+/.user.yml

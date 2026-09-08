@@ -1,0 +1,123 @@
+version: 2
+
+models:
+  - name: silver_airports
+    description: "This is the silver layer for the airports data."
+    columns:
+      - name: airport_ident
+        tests:
+          - not_null
+          - unique
+      - name: airport_name
+        description: "Name of the airport."
+        data_type: string
+        tests:
+          - not_null
+      - name: airport_type
+        data_type: string
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: 
+                  - medium_airport
+                  - small_airport
+                  - balloonport
+                  - closed
+                  - heliport
+                  - seaplane_base
+                  - large_airport
+      - name: airport_lat
+        description: "Latitude coordinates in decimal degrees."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                      min_value: -90
+                      max_value: 90
+      - name: airport_long
+        description: "Longitude coordinates in decimal degrees."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                      min_value: -180
+                      max_value: 180
+      - name : iso_country
+        description: "ISO country code."
+      - name: iso_region
+        description: "ISO region code."
+
+  - name: silver_runways
+    descrption: "Runway specifications linked to airports, including dimensions and surface type"
+    columns:
+      - name: runway_id
+        description: "Unique identifier for each runway."
+        tests:
+          - not_null
+          - unique
+      - name: airport_ident
+        description: "Reference to the parent airport."
+        tests:
+          - not_null
+        data_type: string
+        relationships:
+          arguments:
+            to: ref('silver_airports')
+            field: airport_ident
+          config:
+            severity: warn
+      - name: runway_length_ft
+        description: "Length of the runway in feet."
+        data_type: integer
+      - name: runway_width_ft
+        description: "Width of the runway in feet."
+      - name: runway_surface
+        description: "Surface type of the runway (e.g., asphalt, concrete, grass), unknown values are marked as __UNKNOWN__"
+        data_tests:
+          - not_null
+      - name: runway_lighted
+        description: "Indicates if the runway is lighted (1) or not (0)."
+        data_type: integer
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              arguments:
+                value_set: [0, 1]
+      - name: runway_closed
+        description: "Indicates if the runway is closed (1) or not (0)."
+        data_type: integer
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              arguments:
+                value_set: [0, 1]
+  - name: silver_airport_comments
+    desciption: "Comments and notes related to airports, providing additional context or information."
+    columns:
+      - name: comment_id
+        description: "Unique identifier for each comment."
+        tests:
+          - not_null
+          - unique
+      - name: airport_ident
+        description: "Reference to the associated airport"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_airports')
+                field: airport_ident
+              config:
+                severity: warn
+        data_type: string
+      - name: member_nickname
+        description: "Nickname of the member who made the comment."
+        data_type: string
+      - name: comment_timestamp
+        description: "Timestamp indicating when the comment was made."
+        data_type: timestamp_ntz
+      - name: comment_subject
+        description: "Subject or title of the comment."
+        data_type: string
+      - name: comment_body
+        description: "The main content or body of the comment."
+        data_type: string
+        tests:
+          - not_null
+      
