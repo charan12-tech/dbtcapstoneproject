@@ -1,0 +1,12 @@
+sources:
+  - name: airstats
+    schema: raw
+    description: "This is the source for the airstats data."
+    tables:
+      - name: comments
+        identifier: airport_comments
+      - name: airports
+        identifier: airports
+      - name: runways
+        identifier: runways
+        
