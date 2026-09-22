@@ -46,7 +46,7 @@ models:
         description: "ISO region code."
 
   - name: silver_runways
-    descrption: "Runway specifications linked to airports, including dimensions and surface type"
+    description: "Runway specifications linked to airports, including dimensions and surface type"
     columns:
       - name: runway_id
         description: "Unique identifier for each runway."
@@ -55,15 +55,15 @@ models:
           - unique
       - name: airport_ident
         description: "Reference to the parent airport."
+        data_type: string
         tests:
           - not_null
-        data_type: string
-        relationships:
-          arguments:
-            to: ref('silver_airports')
-            field: airport_ident
-          config:
-            severity: warn
+          - relationships:
+              arguments:
+                to: ref('silver_airports')
+                field: airport_ident
+              config:
+                severity: warn
       - name: runway_length_ft
         description: "Length of the runway in feet."
         data_type: integer
@@ -88,7 +88,7 @@ models:
               arguments:
                 value_set: [0, 1]
   - name: silver_airport_comments
-    desciption: "Comments and notes related to airports, providing additional context or information."
+    description: "Comments and notes related to airports, providing additional context or information."
     columns:
       - name: comment_id
         description: "Unique identifier for each comment."
